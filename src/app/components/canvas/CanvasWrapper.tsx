@@ -37,8 +37,9 @@ export default function CanvasWrapper() {
 
   const diagramDataConfig = useAppSelector(selectDiagramDataConfig);
   const selectedData = useAppSelector(selectSelected);
-  const isSelected = selectedData !== null;
-  console.log({selectedData})
+  const isSelected = selectedData !== null && selectedData.text;
+
+
   const [diagramData, updateDiagramData] = useImmer<DiagramData>(() => diagramDataConfig);
   
   /**
@@ -70,20 +71,16 @@ export default function CanvasWrapper() {
    */
   const handleDiagramEvent = (e: go.DiagramEvent) => {
     const name = e.name;
-    console.log({name})
     switch (name) {
       case 'ChangedSelection': {
         const sel = e.subject.first();
         updateDiagramData((draft: DiagramData) => {
-            console.log({sel, key: sel.key})
             if (sel) {
               if (sel instanceof go.Node) {
                 const idx = mapNodeKeyIdx.get(sel.key);
-                console.log({idx})
                 if (idx !== undefined && idx >= 0) {
                   const nd = draft.nodeDataArray[idx];
                   draft.selectedData = nd;
-                  console.log({nd})
                 }
               } else if (sel instanceof go.Link) {
                 const idx = mapLinkKeyIdx.get(sel.key);
@@ -96,7 +93,6 @@ export default function CanvasWrapper() {
               draft.selectedData = null;
             }
       });
-      console.log({diagramData})
       break;
       }
       default: break;
@@ -116,7 +112,7 @@ export default function CanvasWrapper() {
     const modifiedLinkData = obj.modifiedLinkData;
     const removedLinkKeys = obj.removedLinkKeys;
     const modifiedModelData = obj.modelData;
-    console.log({obj})
+
     // maintain maps of modified data so insertions don't need slow lookups
     const modifiedNodeMap = new Map<go.Key, go.ObjectData>();
     const modifiedLinkMap = new Map<go.Key, go.ObjectData>();
@@ -250,12 +246,20 @@ export default function CanvasWrapper() {
 
   // handle addNode to array
   const addNode = () => {
-    const key = UUID();
-    diagram?.model.addNodeData({ key, text: 'New Session', color: 'red', loc: '10 10' })
+
+    if(diagram !== null){
+      const key = UUID();
+      const newnode = { key, text: 'New Session', color: '#fff', loc: '10 10' };
+      diagram?.model.commit(m => {  // m == the Model
+        diagram.model.addNodeData(newnode);
+        // const newlink = { from: selnode.data.key, to: newnode.NodeId }
+        // diagram.model.addLinkData(newlink)
+      }, "add node");
+    }
   }
 
+
   useEffect(() => {
-    console.log({diagramData})
     dispatch(updateDiagramConfig(diagramData))
   }, [diagramData])
 

@@ -20,7 +20,14 @@ const initialState: PlannerState = {
 export const plannerSlice = createSlice({
     reducers: {
         updateSession: (state, action: PayloadAction<{id:string, notes:string }>) => {
-            console.log({payload: action.payload})
+            const { id, notes} = action.payload;
+            const sessions = {...state.config.sessions};
+            if (sessions.hasOwnProperty(id)){
+              sessions[id].notes = notes;
+            } else {
+              sessions[id] = {notes}
+            }
+            state.config.sessions = sessions;
         },
     },
     name: "planner",
