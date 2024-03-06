@@ -6,15 +6,14 @@ import { Dropdown } from 'flowbite-react';
 
 import { selectSessions, updateSession } from '@/state/planner.slice';
 import { selectSelected } from "@/state/canvas.slice";
-import diagramInstance from "./canvas/CanvasDiagram";
+import diagramInstance from "../canvas/CanvasDiagram";
 import { isEqual } from "lodash";
 
 
-export default function Planner() {
+export default function Character() {
     const dispatch = useAppDispatch();
     const selectedData = useAppSelector(selectSelected);
     const sessionData = useAppSelector(selectSessions);
-    console.log({selectedData})
 
     if(selectedData === null){
       return null;
@@ -69,7 +68,7 @@ export default function Planner() {
       const notesFromSession = sessionData[key] ? sessionData[key].notes : '';
       const  [notes, setNotes] = useState<string>(notesFromSession)
       const debouncedNotesChange= useMemo(
-        () => debounce((notes) => setNotes(notes), 100), []
+        () => debounce((notes) => setNotes(notes), 10), []
       );
       const handleNotesChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
         const notes = e.target.value;
@@ -83,7 +82,7 @@ export default function Planner() {
       return (
         <div className="w-full h-full dark:bg-slate-700">
           <div className="w-full p-2">
-            <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Session Name</label>
+            <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Character Name</label>
             <input value={name} onChange={(e) => handleNameChange(e)} type="text" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
           </div>
           <div className="w-full p-2 flex flex-row justify-around">

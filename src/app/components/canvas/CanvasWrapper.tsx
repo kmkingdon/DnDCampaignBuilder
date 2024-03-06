@@ -1,16 +1,16 @@
 'use client'
 import * as go from 'gojs';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useImmer } from 'use-immer';
 import { v4 as UUID } from 'uuid';
 import { Button } from 'flowbite-react';
 import { MdAddCircle } from "react-icons/md";
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 
 import Canvas from './Canvas';
 import { useAppDispatch, useAppSelector } from '@/state/hook';
 import { selectDiagramDataConfig, selectSelected, updateDiagramConfig } from '@/state/canvas.slice';
-import Planner from '../Planner';
+import ConfigPanel from '../configs/ConfigPanel';
 import diagramInstance from './CanvasDiagram';
 
 
@@ -37,8 +37,8 @@ export default function CanvasWrapper() {
 
   const diagramDataConfig = useAppSelector(selectDiagramDataConfig);
   const selectedData = useAppSelector(selectSelected);
-  const isSelected = selectedData !== null && selectedData.text;
-
+  const isSelected = selectedData !== null && !!selectedData.text;
+  console.log({selectedData, isSelected})
 
   const [diagramData, updateDiagramData] = useImmer<DiagramData>(() => diagramDataConfig);
   
@@ -263,15 +263,31 @@ export default function CanvasWrapper() {
     dispatch(updateDiagramConfig(diagramData))
   }, [diagramData])
 
+  // panel control
+  const ref = useRef<ImperativePanelHandle>(null);
+
+  useEffect(() => {
+    const panel = ref.current;
+    if(!isSelected){
+      if (panel) {
+        panel.collapse();
+      }
+    } else {
+      if (panel) {
+        panel.expand();
+      }
+    }
+  }, [isSelected])
+
   return (
     <div className="w-full h-[calc(100vh-42px)] flex flex-row">
-        <div className="h-full  w-12 flex flex-col">
+        {/* <div className="h-full  w-12 flex flex-col">
           <Button onClick={() => addNode()} >
               <MdAddCircle className="h-6 w-6"/>
           </Button>
-        </div>
+        </div> */}
        <PanelGroup direction="horizontal">
-        <Panel>
+        <Panel order={1} id="diagram-canvas">
           <Canvas
             diagramData={diagramData}
             onDiagramEvent={handleDiagramEvent}
@@ -279,12 +295,11 @@ export default function CanvasWrapper() {
           />
         </Panel>
         <PanelResizeHandle />
-        <Panel defaultSize={30}>
-          {
-            isSelected ?
-            <Planner /> :
-            null
-          }
+        <Panel order={2} defaultSize={ 30 } collapsible collapsedSize={1}  ref={ref} >
+            { isSelected ?
+              <ConfigPanel /> :
+              null
+            }
         </Panel>
       </PanelGroup>
     </div>

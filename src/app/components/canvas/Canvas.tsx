@@ -1,7 +1,8 @@
 'use client'
 import * as go from 'gojs';
-import { ReactDiagram } from 'gojs-react';
-import {useState, useCallback, useEffect} from 'react';
+import { ReactDiagram, ReactPalette } from 'gojs-react';
+import {useCallback, useEffect} from 'react';
+import { v4 as UUID } from 'uuid';
 
 import diagramInstance from './CanvasDiagram';
 
@@ -43,17 +44,29 @@ export default function Canvas(props: CanvasProps) {
     };
   }, [diagram, onDiagramEvent]);
 
-  
+
+  const nodeDataArray = [
+    { text: "Session" ,  color: "white", key: UUID(), category:'session'},
+    { text: "Character" ,  color: "Green", key: UUID(), category: 'character' }
+  ]
+
   return (
-    <ReactDiagram
-        ref={diagramRef}
-        divClassName='diagram-component'
-        initDiagram={diagramInstance.initDiagram}
-        nodeDataArray={diagramData.nodeDataArray}
-        linkDataArray={diagramData.linkDataArray}
-        modelData={diagramData.modelData}
-        onModelChange={onModelChange}
-        skipsDiagramUpdate={diagramData.skipsDiagramUpdate}
-    />
+    <div className='w-full h-full flex flex-row'>
+      <ReactPalette
+        divClassName='palette-component'
+        initPalette={diagramInstance.initPalette}
+        nodeDataArray={nodeDataArray}
+      />
+      <ReactDiagram
+          ref={diagramRef}
+          divClassName='diagram-component'
+          initDiagram={diagramInstance.initDiagram}
+          nodeDataArray={diagramData.nodeDataArray}
+          linkDataArray={diagramData.linkDataArray}
+          modelData={diagramData.modelData}
+          onModelChange={onModelChange}
+          skipsDiagramUpdate={diagramData.skipsDiagramUpdate}
+      />
+    </div>
   );
 };
