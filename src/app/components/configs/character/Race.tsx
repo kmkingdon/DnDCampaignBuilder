@@ -1,21 +1,15 @@
 import { useAppDispatch, useAppSelector } from "@/state/hook";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
-import debounce  from "lodash/debounce"
-import { ColorResult, SketchPicker } from 'react-color';
-import { Accordion, Dropdown, List, Tooltip } from 'flowbite-react';
+import {  useEffect, useState } from "react";
+import { Accordion,  List, Tooltip } from 'flowbite-react';
 import { MdInfoOutline } from "react-icons/md";
 
-import characterConfig from './characterConfig.json';
-import { useGetAlignmentQuery, useGetRaceQuery } from "@/state/api.dnd";
+import characterConfig from '../characterConfig.json';
+import { useGetAlignmentQuery, useGetClassQuery, useGetRaceQuery } from "@/state/api.dnd";
 import { getCharacterSubTraits, getCharacterTraits, selectCharacters, updateCharacterParam } from '@/state/config.slice';
 import { selectSelected } from "@/state/canvas.slice";
-import diagramInstance from "../canvas/CanvasDiagram";
-import { isEqual } from "lodash";
 
 
-
-
-export default function Character() {
+export default function Race() {
     const dispatch = useAppDispatch();
     const selectedData = useAppSelector(selectSelected);
     const characterData= useAppSelector(selectCharacters);
@@ -27,49 +21,6 @@ export default function Character() {
       const {key, text, color } = selectedData;
       // character data
       const character = characterData[key] ? characterData[key] : {};
-
-      const diagram = diagramInstance.getDiagramRef();
-
-      const  [name, setName] = useState<string>(text)
-      // name logic
-      const debouncedNameChange= useMemo(
-        () => debounce((name) => setName(name), 100), []
-      );
-      const handleNameChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
-        const value = e.target.value;
-        debouncedNameChange(value)
-      }
-
-      //update name if selectedData changes
-      useEffect(() => {
-        if(!isEqual(name, text)){
-          setName(text);
-        }
-      }, [text])
-
-      //update node text if name changes
-      useEffect(() => {
-        const node = diagram?.findNodeForKey(key);
-        if(node){
-          diagram?.model.commit(m => {  // m == the Model
-            m.set(node?.data, "text", name);
-          }, "change node name");
-        }
-      }, [name])
-
-      // color logic
-      const [sessionColor, setSessionColor ] = useState<string>(color)
-      const handleColorChange = (color:ColorResult) => {
-        setSessionColor(color.hex);
-        const node = diagram?.findNodeForKey(key);
-        if(node){
-          diagram?.model.commit(m => {  // m == the Model
-            m.set(node?.data, "color", color.hex);
-          }, "change node color");
-        }
-      }
-
-
 
       // alignment
       const alignmentParam = character.alignment ? character.alignment : '';
@@ -126,38 +77,9 @@ export default function Character() {
     }, [subTraits])
 
 
-    // class
-    const classParam = character.class ? character.class : '';
-    const  [classes, setClasses] = useState<string>(classParam|| '')
-    // const { data: classesDesc, error, isLoading } = useGetClassQuery(classes, {
-    //     skip: !classes.length,
-    // });
-
-    useEffect(() => {
-        dispatch(updateCharacterParam({id:key, type:'class', value:classes}))
-    }, [classes])
 
       return (
-        <div className="w-full h-full dark:bg-slate-700 overflow-scroll">
-          <div className="w-full p-2 flex flex-row content-between">
-            <div className="w-[80%]">
-                <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Character Name</label>
-                <input value={name} onChange={(e) => handleNameChange(e)} type="text" id="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-            </div>
-            <div className="w-[20%] px-2 flex items-end relative">
-                <Dropdown label="Color" dismissOnClick={false}  theme={{ floating: { target: "w-16 !bg-transparent border-none absolute z-10"  } }}> 
-                    <SketchPicker
-                        color={ sessionColor }
-                        onChangeComplete={(color:ColorResult) => handleColorChange(color) }
-                    />
-                </Dropdown>
-                <div className="w-10 h-10 absolute" x-data="{ dynamicColor: {{ $sessionColor }} }" style={{ backgroundColor: sessionColor }}>
-                </div>
-          </div>
-          </div>
-          <div className="w-full p-2">
-          <Accordion>
-            <Accordion.Panel>
+            <>
                 <Accordion.Title>Race</Accordion.Title>
                     <Accordion.Content>
                         <div className="pt-2">
@@ -239,30 +161,7 @@ export default function Character() {
                             }
                         </div>
                     </Accordion.Content>
-                </Accordion.Panel>
-            </Accordion>
-            <form className="w-full">
-                <div>
-                    <label htmlFor="classes" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Class</label>
-                    <div className="flex flex-row  justify-around">
-                        <select value={classes} onChange={(e)=> setClasses(e.target.value)} id="classes" className="w-[80%] bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            <option selected>Class</option>
-                            {
-                                    characterConfig.classes.map((i)=> {
-                                        return <option value={i}>{i}</option>
-                                    })
-                            }
-                        </select>
-                        <Tooltip content={alignmentDesc?.desc} style="light" theme={{ style: {light:"w-40 border border-gray-200 bg-white text-gray-900"}  }}>
-                            <div className="w-full h-full flex justify-center items-center">
-                                <MdInfoOutline size="25" color="white"/>
-                            </div>
-                        </Tooltip>
-                    </div>
-                </div>
-            </form>
-          </div>
-        </div>
+                </>
       );
     }
   }

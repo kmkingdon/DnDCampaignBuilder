@@ -1,7 +1,7 @@
 import { useAppSelector } from "@/state/hook";
 import { selectSelected } from "@/state/canvas.slice";
 import Session from "./Session";
-import Character from "./Character";
+import CharacterPanel from "./character/CharacterPanel";
 
 
 
@@ -19,6 +19,6 @@ export default function ConfigPanel() {
       if(isSession) {
         return <Session />
       }
-      return <Character/>
+      return <CharacterPanel/>
     }
   }

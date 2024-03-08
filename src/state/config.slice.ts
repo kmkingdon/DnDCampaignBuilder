@@ -13,6 +13,9 @@ type characterInfo = {
   class?: string;
   race?: string;
   traits?: any;
+  skills?: string[];
+  equipment?: string[];
+  equipmentCategory?: string;
 }
 interface CharacterMap { [key: string]: characterInfo; }
 
@@ -114,7 +117,7 @@ export const configSlice = createSlice({
             }
             state.sessions = sessions;
         },
-        updateCharacterParam: (state, action: PayloadAction<{id:string, type: string, value:string | undefined }>) => {
+        updateCharacterParam: (state, action: PayloadAction<{id:string, type: string, value:string | string[] | undefined }>) => {
             const { id, type, value} = action.payload;
             const characters = {...state.characters};
             if (characters.hasOwnProperty(id)){

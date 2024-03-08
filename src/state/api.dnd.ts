@@ -14,9 +14,15 @@ export const dndApi = createApi({
     getTrait: builder.query<any, string>({
         query: (index) => `/traits/${index}`,
     }),
+    getClass: builder.query<any, string>({
+        query: (index) => `/classes/${index}`,
+    }),
+    getEquipmentCategory: builder.query<any, string>({
+        query: (index) => `/equipment-categories/${index}`,
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetAlignmentQuery, useGetRaceQuery } = dndApi
+export const { useGetAlignmentQuery, useGetRaceQuery, useGetClassQuery, useGetEquipmentCategoryQuery } = dndApi
