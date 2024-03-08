@@ -38,7 +38,6 @@ export default function CanvasWrapper() {
   const diagramDataConfig = useAppSelector(selectDiagramDataConfig);
   const selectedData = useAppSelector(selectSelected);
   const isSelected = selectedData !== null && !!selectedData.text;
-  console.log({selectedData, isSelected})
 
   const [diagramData, updateDiagramData] = useImmer<DiagramData>(() => diagramDataConfig);
   
@@ -244,21 +243,6 @@ export default function CanvasWrapper() {
   }, [diagramData.selectedData, mapLinkKeyIdx, mapNodeKeyIdx, updateDiagramData]);
 
 
-  // handle addNode to array
-  const addNode = () => {
-
-    if(diagram !== null){
-      const key = UUID();
-      const newnode = { key, text: 'New Session', color: '#fff', loc: '10 10' };
-      diagram?.model.commit(m => {  // m == the Model
-        diagram.model.addNodeData(newnode);
-        // const newlink = { from: selnode.data.key, to: newnode.NodeId }
-        // diagram.model.addLinkData(newlink)
-      }, "add node");
-    }
-  }
-
-
   useEffect(() => {
     dispatch(updateDiagramConfig(diagramData))
   }, [diagramData])
@@ -281,11 +265,6 @@ export default function CanvasWrapper() {
 
   return (
     <div className="w-full h-[calc(100vh-42px)] flex flex-row">
-        {/* <div className="h-full  w-12 flex flex-col">
-          <Button onClick={() => addNode()} >
-              <MdAddCircle className="h-6 w-6"/>
-          </Button>
-        </div> */}
        <PanelGroup direction="horizontal">
         <Panel order={1} id="diagram-canvas">
           <Canvas

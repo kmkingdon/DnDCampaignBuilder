@@ -4,7 +4,7 @@ import debounce  from "lodash/debounce"
 import { ColorResult, SketchPicker } from 'react-color';
 import { Dropdown } from 'flowbite-react';
 
-import { selectSessions, updateSession } from '@/state/planner.slice';
+import { selectSessions, updateSession } from '@/state/config.slice';
 import { selectSelected } from "@/state/canvas.slice";
 import diagramInstance from "../canvas/CanvasDiagram";
 import { isEqual } from "lodash";
