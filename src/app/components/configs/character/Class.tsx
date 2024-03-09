@@ -31,7 +31,6 @@ export default function Classes() {
     const { data: classesData, error: errorClasses, isLoading: isLoadingClasses } = useGetClassQuery(classes, {
         skip: !classes.length,
     });
-    console.log({classesData})
 
     useEffect(() => {
         dispatch(updateCharacterParam({id:key, type:'class', value:classes}))

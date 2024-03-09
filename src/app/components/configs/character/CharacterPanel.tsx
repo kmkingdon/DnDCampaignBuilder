@@ -11,6 +11,7 @@ import { isEqual } from "lodash";
 import Race from "./Race";
 import Classes from "./Class";
 import Ability from "./Ability";
+import Spells from "./Spells";
 
 
 
@@ -96,6 +97,9 @@ export default function CharacterPanel() {
                 </Accordion.Panel>
                 <Accordion.Panel>
                     <Ability/>
+                </Accordion.Panel>
+                <Accordion.Panel>
+                    <Spells/>
                 </Accordion.Panel>
             </Accordion>
           </div>

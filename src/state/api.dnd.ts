@@ -20,9 +20,15 @@ export const dndApi = createApi({
     getEquipmentCategory: builder.query<any, string>({
         query: (index) => `/equipment-categories/${index}`,
     }),
+    getSpellcasting: builder.query<any, string>({
+        query: (index) => `/classes/${index}/spellcasting`,
+    }),
+    getSpells: builder.query<any, string>({
+        query: (index) => `/classes/${index}/spells`,
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetAlignmentQuery, useGetRaceQuery, useGetClassQuery, useGetEquipmentCategoryQuery } = dndApi
+export const { useGetAlignmentQuery, useGetRaceQuery, useGetClassQuery, useGetEquipmentCategoryQuery, useGetSpellcastingQuery, useGetSpellsQuery } = dndApi

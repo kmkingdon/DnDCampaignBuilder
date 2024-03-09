@@ -25,6 +25,7 @@ type characterInfo = {
   equipmentCategory?: string;
   ability?: {[key:string]: abilityInfo};
   proficiency?: number;
+  spells?: string[];
 }
 interface CharacterMap { [key: string]: characterInfo; }
 

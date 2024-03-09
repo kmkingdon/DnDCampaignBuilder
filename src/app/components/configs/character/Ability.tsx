@@ -7,7 +7,7 @@ import {  selectCharacters, updateAbilityChange } from '@/state/config.slice';
 import { selectSelected } from "@/state/canvas.slice";
 
 
-const ABILITIES:{[key: string]: string} = {
+export const ABILITIES:{[key: string]: string} = {
   "cha": "Charisma", 
   "con": "Constitution", 
   "dex": "Dexterity",
@@ -102,14 +102,25 @@ export default function Ability() {
         updateValue({type, value})
       }
 
-      //params
-      const profParam = character?.ability?.prof?.score  || 10;
+      //params from state
+      const profParam = character?.ability?.prof?.score  || 0;
       const chaParam = character?.ability?.cha?.score  || 10;
       const conParam = character?.ability?.con?.score  || 10;
       const dexParam = character?.ability?.dex?.score  || 10;
       const intParam = character?.ability?.int?.score  || 10;
       const strParam = character?.ability?.str?.score  || 10;
       const wisParam = character?.ability?.wis?.score  || 10;
+
+      useEffect(() => {
+        // ensure local state is aligned with redux- shows bonus values
+        if(character && character.ability){
+          characterConfig.ability.forEach(a => {
+            // @ts-ignore - ability will be defined when race is selected- this panel is not shown before race is selected
+            const valueInfo:{score:number} = character?.ability[a]
+            updateValue({type: a, value: valueInfo.score})
+          })
+        }
+      }, [character.ability])
       
       //component state
       const  [prof, setProf] = useState<number>(profParam);
