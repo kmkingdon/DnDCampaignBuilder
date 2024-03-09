@@ -1,12 +1,19 @@
 import {createAsyncThunk, createSlice, PayloadAction, ThunkAction, UnknownAction} from "@reduxjs/toolkit"
 import {RootState} from "./store"
-import { dndApi } from "./api.dnd";
 import { QueryActionCreatorResult, QueryDefinition, BaseQueryFn, FetchArgs, FetchBaseQueryError, FetchBaseQueryMeta } from "@reduxjs/toolkit/query";
+
+import { dndApi } from "./api.dnd";
+import characterConfig from '../app/components/configs/characterConfig.json';
 
 type sessionInfo = {
     notes: string;
 }
 interface SessionMap { [key: string]: sessionInfo; }
+
+type abilityInfo = {
+  score: number,
+  bonus: number
+}
 
 type characterInfo = {
   alignment?: string;
@@ -16,6 +23,8 @@ type characterInfo = {
   skills?: string[];
   equipment?: string[];
   equipmentCategory?: string;
+  ability?: {[key:string]: abilityInfo};
+  proficiency?: number;
 }
 interface CharacterMap { [key: string]: characterInfo; }
 
@@ -89,11 +98,9 @@ export const getCharacterSubTraits = createAsyncThunk(
     const { id, subTraits} = payload;
     const { dispatch } = thunkAPI;
     try{
-      console.log({subTraits})
       const mapResult = await Promise.all(Object.entries(subTraits).map( async(entries) => {
 
         const [ trait, subTrait ] = entries as [string, string];
-        console.log({subTrait})
         return await getSubTrait(dispatch, subTrait)
       }))
       return  {key: id, subTraits: mapResult};
@@ -117,7 +124,7 @@ export const configSlice = createSlice({
             }
             state.sessions = sessions;
         },
-        updateCharacterParam: (state, action: PayloadAction<{id:string, type: string, value:string | string[] | undefined }>) => {
+        updateCharacterParam: (state, action: PayloadAction<{id:string, type: string, value:string | string[] | number | undefined }>) => {
             const { id, type, value} = action.payload;
             const characters = {...state.characters};
             if (characters.hasOwnProperty(id)){
@@ -127,6 +134,27 @@ export const configSlice = createSlice({
             }
             state.characters = characters
         },
+        createAbilityObject: (state, action: PayloadAction<{id:string, bonus:any}>) => {
+          const { id, bonus} = action.payload;
+          
+          const ability:{[key:string]: abilityInfo} = {prof:{score: 0, bonus: 0}};
+          characterConfig.ability.forEach(a => {
+            ability[a] = {score: 10, bonus: 0}
+          })
+
+          bonus.forEach((b: { ability_score: { index: any; }; bonus: any; }) => {
+            let key = b.ability_score.index;
+            ability[key] = {score:10 + b.bonus, bonus: b.bonus}
+          })
+            
+          state.characters[id].ability = ability;
+      },
+      updateAbilityChange: (state, action: PayloadAction<{id:string, type:string, value:number}>) => {
+        const { id, type, value} = action.payload;
+        const ability = {...state.characters[id].ability};
+        ability[type] = {bonus:ability[type]?.bonus, score:value}
+        state.characters[id].ability= ability;
+      },
     },
     extraReducers: (builder) => {
       builder.addCase(getCharacterTraits.pending , (state) => {
@@ -167,7 +195,7 @@ export const configSlice = createSlice({
 })
 
 // actions
-export const {updateSession, updateCharacterParam} = configSlice.actions 
+export const {updateSession, updateCharacterParam, createAbilityObject, updateAbilityChange} = configSlice.actions 
 
 // selectors
 export const selectSessions = (state: RootState) => state.config.sessions;

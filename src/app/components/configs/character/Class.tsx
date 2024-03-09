@@ -32,6 +32,7 @@ export default function Classes() {
         skip: !classes.length,
     });
     console.log({classesData})
+
     useEffect(() => {
         dispatch(updateCharacterParam({id:key, type:'class', value:classes}))
     }, [classes])
@@ -76,7 +77,6 @@ export default function Classes() {
     const  [equipmentCategory, setEquipmentCategory] = useState<string>(equipmentCategoryParam);
 
     useEffect(() => {
-        console.log({equipmentCategory})
         dispatch(updateCharacterParam({id:key, type:'equipmentCategory', value:equipmentCategory}))
     }, [equipmentCategory])
 
