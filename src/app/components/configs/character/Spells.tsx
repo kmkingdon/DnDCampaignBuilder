@@ -1,10 +1,12 @@
 import { useAppDispatch, useAppSelector } from "@/state/hook";
-import {  ChangeEvent, useEffect, useMemo, useState } from "react";
-import { Accordion, Dropdown, DropdownDivider, List, Tooltip } from 'flowbite-react';
+import React, {  ChangeEvent, LegacyRef, Ref, RefObject, useEffect, useMemo, useRef, useState } from "react";
+import { Accordion, Button, Dropdown, DropdownDivider, List, Modal, Tooltip } from 'flowbite-react';
+import {  MdInfoOutline } from "react-icons/md";
 
 import {  selectCharacters,  updateCharacterParam } from '@/state/config.slice';
 import { selectSelected } from "@/state/canvas.slice";
-import { useGetSpellcastingQuery, useGetSpellsQuery } from "@/state/api.dnd";
+import { useGetSpellSelectionQuery, useGetSpellcastingQuery, useGetSpellsQuery } from "@/state/api.dnd";
+import Spell from "../../common/Spell";
 
 
 
@@ -84,6 +86,13 @@ export default function Spells() {
     }
     
 
+    // spell info
+    const  [spellSelection, setSpellSelection] = useState<string>('');
+    const { data: spellSelectionData, error: errorSpellSelection, isLoading: isLoadingSpellSelection } = useGetSpellSelectionQuery(spellSelection, {
+        skip: !spellSelection.length,
+    });
+    console.log({spellSelectionData})
+
 
 
     if(character && character.class && character.class.length){
@@ -112,7 +121,7 @@ export default function Spells() {
                     {
                         spellsData &&
                         <div className="w-full flex flex-row justify-center">
-                        <Dropdown label="Select Spells" dismissOnClick={false} className="p w-60" theme={{ floating: { target: "w-60"  } }}>
+                        <Dropdown label="Select Spells" dismissOnClick={false} className="p w-80" theme={{ floating: { target: "w-80"  } }}>
                             <div className="p-4">
                                 <label htmlFor="spell-search" className="sr-only">Search</label>
                                 <div className="relative">
@@ -134,11 +143,25 @@ export default function Spells() {
                                 {
                                 filteredSpells.map((s: { index: string; name: string }) => {
                                         return (
-                                            <Dropdown.Item key={s.index as string} className="w-full flex items-center" theme={{container:"w-full"}} >
-                                                <input checked={isSpellChecked(s.index)} onChange={(e)=> handleSpellSelection(e)} id={s.index} type="checkbox" className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
-                                                <label htmlFor={s.index} className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                    {s.name}
-                                                </label>
+                                            <Dropdown.Item key={s.index as string} className={s.index === spellSelection ? "w-full flex justify-start bg-gray-500" : "w-full flex justify-start" } theme={{container:"w-full"}} >
+                                                <div onClick={() => setSpellSelection(s.index)}>
+                                                    <Dropdown  label="" dismissOnClick={false} className="w-[30rem] !top-[-10px] !right-[100px] !left-auto" renderTrigger={() => <span><MdInfoOutline size="25" color="white"/></span>}>   
+                                                        {
+                                                            spellSelectionData &&
+                                                            <Dropdown.Item  theme={{base:"!py-0 !px-0"}}>
+                                                                <Spell data={spellSelectionData} loading={isLoadingSpellSelection}/>
+                                                            </Dropdown.Item>
+                                                        }
+
+                                                    </Dropdown>
+                                                </div>
+                                                <div className="pl-1">
+                                                    <input checked={isSpellChecked(s.index)} onChange={(e)=> handleSpellSelection(e)} id={s.index} type="checkbox" className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+                                                    <label htmlFor={s.index} className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                        {s.name}
+                                                    </label>
+                                                </div>
+
                                             </Dropdown.Item>
                                         )
                                     })
