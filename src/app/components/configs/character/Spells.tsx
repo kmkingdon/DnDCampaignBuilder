@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from "@/state/hook";
-import React, {  ChangeEvent, LegacyRef, Ref, RefObject, useEffect, useMemo, useRef, useState } from "react";
-import { Accordion, Button, Dropdown, DropdownDivider, List, Modal, Tooltip } from 'flowbite-react';
+import React, {  ChangeEvent,  useEffect, useMemo,  useState } from "react";
+import { Accordion, Dropdown, DropdownDivider, List, Tooltip } from 'flowbite-react';
 import {  MdInfoOutline } from "react-icons/md";
 
 import {  selectCharacters,  updateCharacterParam } from '@/state/config.slice';
@@ -26,7 +26,7 @@ export default function Spells() {
     const { data: spellInfoData, error: errorSpellInfo, isLoading: isLoadingSpellInfo } = useGetSpellcastingQuery(classes, {
         skip: !classes.length,
     });
-
+    console.log({spellInfoData, errorSpellInfo})
 
     //spells
     const spellsParam = character?.spells || [];
@@ -91,8 +91,21 @@ export default function Spells() {
     const { data: spellSelectionData, error: errorSpellSelection, isLoading: isLoadingSpellSelection } = useGetSpellSelectionQuery(spellSelection, {
         skip: !spellSelection.length,
     });
-    console.log({spellSelectionData})
 
+    // no spellcasting
+    if(errorSpellInfo){
+        return (
+            <>
+                <Accordion.Title>Spellcasting</Accordion.Title>
+                <Accordion.Content>
+                <div className="w-full h-full flex flex-col justify-center items-center">
+                    <p className="m-2 text-m text-gray-500 dark:text-gray-400">The {character.class} class does not support spellcasting.</p>
+                </div>
+                </Accordion.Content>
+            </>
+        )
+    }
+    
 
 
     if(character && character.class && character.class.length){
@@ -161,7 +174,6 @@ export default function Spells() {
                                                         {s.name}
                                                     </label>
                                                 </div>
-
                                             </Dropdown.Item>
                                         )
                                     })
@@ -174,7 +186,10 @@ export default function Spells() {
               </>
         );
       }
-      // class not selected yet
+
+
+
+      // no spellcasting
       return (
         <>
           <Accordion.Title>Spellcasting</Accordion.Title>
@@ -184,7 +199,6 @@ export default function Spells() {
             </div>
           </Accordion.Content>
         </>
-
       )
     
       

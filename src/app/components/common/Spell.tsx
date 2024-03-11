@@ -63,8 +63,6 @@ export default function Spell({data, loading}:{data:any, loading:boolean}) {
                 </div>
             </div>
         )
-
-        return null;
     }
-    
+    return null;
 }

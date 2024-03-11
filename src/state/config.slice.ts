@@ -26,6 +26,7 @@ type characterInfo = {
   ability?: {[key:string]: abilityInfo};
   proficiency?: number;
   spells?: string[];
+  background?: string;
 }
 interface CharacterMap { [key: string]: characterInfo; }
 

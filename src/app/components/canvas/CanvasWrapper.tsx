@@ -2,9 +2,6 @@
 import * as go from 'gojs';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useImmer } from 'use-immer';
-import { v4 as UUID } from 'uuid';
-import { Button } from 'flowbite-react';
-import { MdAddCircle } from "react-icons/md";
 import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 
 import Canvas from './Canvas';

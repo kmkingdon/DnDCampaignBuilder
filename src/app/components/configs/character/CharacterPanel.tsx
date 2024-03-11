@@ -12,6 +12,8 @@ import Race from "./Race";
 import Classes from "./Class";
 import Ability from "./Ability";
 import Spells from "./Spells";
+import Background from "./Background";
+import Character from "../../common/Character";
 
 
 
@@ -71,6 +73,10 @@ export default function CharacterPanel() {
 
       return (
         <div className="w-full h-full dark:bg-slate-700 overflow-scroll min-w-['270px']">
+          <div className="p-2 w-full flex flex-row justify-between">
+            <p className="w-full text-lg dark:text-white text-center">Character Editor</p>
+            <Character key={key} />
+          </div>
           <div className="w-full p-2 flex flex-row content-between">
             <div className="w-[80%]">
                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Character Name</label>
@@ -100,6 +106,9 @@ export default function CharacterPanel() {
                 </Accordion.Panel>
                 <Accordion.Panel>
                     <Spells/>
+                </Accordion.Panel>
+                <Accordion.Panel>
+                    <Background/>
                 </Accordion.Panel>
             </Accordion>
           </div>

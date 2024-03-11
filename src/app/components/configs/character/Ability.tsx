@@ -5,16 +5,8 @@ import { Accordion } from 'flowbite-react';
 import characterConfig from '../characterConfig.json';
 import {  selectCharacters, updateAbilityChange } from '@/state/config.slice';
 import { selectSelected } from "@/state/canvas.slice";
+import { ABILITIES } from "@/app/common/constants";
 
-
-export const ABILITIES:{[key: string]: string} = {
-  "cha": "Charisma", 
-  "con": "Constitution", 
-  "dex": "Dexterity",
-  "int": "Intellegence",
-  "str": "Strength", 
-  "wis": "Wisdom",
-}
 
 export default function Ability() {
     const dispatch = useAppDispatch();
