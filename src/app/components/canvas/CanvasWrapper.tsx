@@ -264,11 +264,11 @@ export default function CanvasWrapper() {
     <div className="w-full h-[calc(100vh-42px)] flex flex-row">
        <PanelGroup direction="horizontal">
         <Panel order={1} id="diagram-canvas">
-          <Canvas
-            diagramData={diagramData}
-            onDiagramEvent={handleDiagramEvent}
-            onModelChange={handleModelChange}
-          />
+            <Canvas
+              diagramData={diagramData}
+              onDiagramEvent={handleDiagramEvent}
+              onModelChange={handleModelChange}
+            />
         </Panel>
         <PanelResizeHandle />
         <Panel order={2} defaultSize={ 30 } collapsible collapsedSize={1}  ref={ref} >

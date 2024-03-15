@@ -47,7 +47,8 @@ export default function Canvas(props: CanvasProps) {
 
   const nodeDataArray = [
     { text: "Session" ,  color: "white", key: UUID(), category:'session'},
-    { text: "Character" ,  color: "Green", key: UUID(), category: 'character' }
+    { text: "Character" ,  color: "teal", key: UUID(), category: 'character' },
+    { text: "Monster" ,  color: "red", key: UUID(), category: 'monster' }
   ]
 
   return (

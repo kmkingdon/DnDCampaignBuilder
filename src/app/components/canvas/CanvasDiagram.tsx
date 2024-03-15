@@ -33,10 +33,10 @@ diagram: null | go.Diagram;
         ];
       }
     
-    textStyle() {
+    textStyle(color:string) {
         return {
-            font: "bold 11pt Lato, Helvetica, Arial, sans-serif",
-            stroke: "#000"
+            font: "bold 13pt Lato, Helvetica, Arial, sans-serif",
+            stroke: color
         }
     }
 
@@ -113,6 +113,28 @@ diagram: null | go.Diagram;
             fig4.add(new go.PathSegment(go.PathSegment.Line, .8 * w, .8 * h));
             return geo;
           });
+
+          go.Shape.defineFigureGenerator("Monster", function(shape, w, h) {
+            var geo = new go.Geometry();
+            var fig = new go.PathFigure(0, h/2, true);
+            geo.add(fig);
+          
+            // Containing circle
+            fig.add(new go.PathSegment(go.PathSegment.Arc, 180, 360, w/2, h/2, w/2, h/2))
+          
+            function drawTriangle(fig: go.PathFigure, offsetx: number, offsety: number) {
+              fig.add(new go.PathSegment(go.PathSegment.Move, (.3 + offsetx) * w, (.8 + offsety) * h));
+              fig.add(new go.PathSegment(go.PathSegment.Line, (.5 + offsetx) * w, (.5 + offsety) * h));
+              fig.add(new go.PathSegment(go.PathSegment.Line, (.1 + offsetx) * w, (.5 + offsety) * h));
+              fig.add(new go.PathSegment(go.PathSegment.Line, (.3 + offsetx) * w, (.8 + offsety) * h).close());
+            }
+          
+            // Triangles
+            drawTriangle(fig, 0, 0);
+            drawTriangle(fig, 0.4, 0);
+            drawTriangle(fig, 0.2, -0.3);
+            return geo;
+          });
     }
 
     updateNodeTemplate($:any, model:any) {
@@ -122,19 +144,19 @@ diagram: null | go.Diagram;
             portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer'
             },
             new go.Binding('fill', 'color')),
-            $(go.TextBlock, this.textStyle(),
-                { margin: 8, editable: true, font: '400 .875rem Roboto, sans-serif', wrap: go.TextBlock.WrapFit },
+            $(go.TextBlock, this.textStyle('black'),
+                { margin: 8, editable: true, font: '900 .875rem Roboto, sans-serif', wrap: go.TextBlock.WrapFit },
                 new go.Binding("text").makeTwoWay())
         )
         
         const session = $(go.Node, "Auto", this.nodeStyle(),
             $(go.Shape, "Session",
-                { name: 'SHAPE', fill: 'white', strokeWidth: 0, height: 75,
+                { name: 'SHAPE', fill: 'white', strokeWidth: 2, height: 75,
                 portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer'
                 },
                 new go.Binding('fill', 'color')),
-                $(go.TextBlock, this.textStyle(),
-                    { margin: 8, editable: true, font: '400 .875rem Roboto, sans-serif', wrap: go.TextBlock.WrapFit },
+                $(go.TextBlock, this.textStyle('black'),
+                    { margin: 8, editable: true, font: '900 .875rem Roboto, sans-serif', wrap: go.TextBlock.WrapFit },
                     new go.Binding("text").makeTwoWay())
                 )
   
@@ -142,26 +164,45 @@ diagram: null | go.Diagram;
         const character = $(go.Node, "Auto", this.nodeStyle(),
             // the main object is a Panel that surrounds a TextBlock with a rectangular Shape
             $(go.Shape, "Character",
-                { name: 'SHAPE', fill: 'white', strokeWidth: 0, height: 75,
+                { name: 'SHAPE', fill: 'white', strokeWidth: 2, height: 75,
                 portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer'
                 },
                 new go.Binding('fill', 'color')),
-            $(go.TextBlock, this.textStyle(),
-                { verticalAlignment: go.Spot.Bottom, width: 170, height: 60, margin: 8, editable: true, font: '400 .875rem Roboto, sans-serif', wrap: go.TextBlock.WrapFit },
+            $(go.TextBlock, this.textStyle('white'),
+                { verticalAlignment: go.Spot.Bottom, width: 170, height: 60, margin: 8, editable: true, font: '900 .875rem Roboto, sans-serif', wrap: go.TextBlock.WrapFit },
                 new go.Binding("text").makeTwoWay())
             )
+
+        const monster = $(go.Node, "Auto", this.nodeStyle(),
+            $(go.Shape, "Monster",
+                { name: 'SHAPE', fill: 'white', strokeWidth: 2, height: 75,
+                portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer'
+                },
+                new go.Binding('fill', 'color')),
+                $(go.TextBlock, this.textStyle('yellow'),
+                    { margin: 8, editable: true, font: '900 .875rem Roboto, sans-serif', wrap: go.TextBlock.WrapFit },
+                    new go.Binding("text").makeTwoWay())
+                )
+  
     
         const templmap = new go.Map(); // In TypeScript you could write: new go.Map<string, go.Node>();
         // for each of the node categories, specify which template to use
         templmap.add("", defaultNode);
         templmap.add("session", session);
         templmap.add("character", character);
-
+        templmap.add("monster", monster);
         
 
         model.nodeTemplateMap = templmap;
     }
 
+    isLinkValid = (fromnode: any, fromport: any, tonode: { Tf: string; }, toport: any) => {
+        console.log({fromnode, fromport, tonode, toport})
+        if(tonode.Tf === 'session'){
+            return true;
+        }
+        return false;
+    }
 
     /**
    * Diagram initialization method, which is passed to the ReactDiagram component.
@@ -184,6 +225,8 @@ diagram: null | go.Diagram;
             'draggingTool.centerGuidelineColor': 'black',
             'draggingTool.guidelineWidth': 1,
             'animationManager.isEnabled': false,
+            "linkingTool.linkValidation": this.isLinkValid,
+            "relinkingTool.linkValidation": this.isLinkValid,
             layout: $(go.ForceDirectedLayout),
             model: $(go.GraphLinksModel,
                 {

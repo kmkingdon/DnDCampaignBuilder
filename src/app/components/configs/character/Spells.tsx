@@ -26,7 +26,6 @@ export default function Spells() {
     const { data: spellInfoData, error: errorSpellInfo, isLoading: isLoadingSpellInfo } = useGetSpellcastingQuery(classes, {
         skip: !classes.length,
     });
-    console.log({spellInfoData, errorSpellInfo})
 
     //spells
     const spellsParam = character?.spells || [];

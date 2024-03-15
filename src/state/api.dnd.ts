@@ -29,6 +29,9 @@ export const dndApi = createApi({
     getSpellSelection: builder.query<any, string>({
         query: (index) => `/spells/${index}`,
     }),
+    getEquipment: builder.query<any, string>({
+      query: (index) => `/equipment/${index}`,
+  }),
   }),
 })
 

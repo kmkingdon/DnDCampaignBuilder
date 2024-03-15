@@ -28,4 +28,25 @@ export const ABILITY_BONUS:{[key:number]: string} = {
     18: '+4',
     19: '+4',
     20: '+5'
-}
+};
+
+export const SKILLS_ABILITY:{[key:string]: string} = {
+  'skill-athletics': 'str',
+  'skill-acrobatics': 'dex',
+  'skill-sleight-of-hand': 'dex',
+  'skill-stealth': 'dex',
+  'skill-arcana': 'int',
+  'skill-history': 'int',
+  'skill-investigation': 'int',
+  'skill-nature': 'int',
+  'skill-religion': 'int',
+  'skill-animal-handling': 'wis',
+  'skill-insight': 'wis',
+  'skill-medicine': 'wis',
+  'skill-perception': 'wis',
+  'skill-survival': 'wis',
+  'skill-deception': 'cha',
+  'skill-intimidation': 'cha',
+  'skill-performance': 'cha',
+  'skill-persuasion': 'cha'
+};

@@ -21,12 +21,14 @@ type characterInfo = {
   race?: string;
   traits?: any;
   skills?: string[];
-  equipment?: string[];
+  equipment?: {[key:string]: {value:string, selectId:string}};
   equipmentCategory?: string;
   ability?: {[key:string]: abilityInfo};
   proficiency?: number;
   spells?: string[];
   background?: string;
+  actions?: any[]
+  level?: number;
 }
 interface CharacterMap { [key: string]: characterInfo; }
 
@@ -46,6 +48,20 @@ type traitConfig = {
   desc: string[];
   trait_specific?: any;
   parent?: any;
+}
+
+type equipmentConfig = {
+  equipment_category:{index:string, name:string, url:string};
+  armor_category?: string;
+  armor_class?: any;
+  stealth_disadvantage?: boolean;
+  name: string;
+  index: string;
+  contents?: any[]
+  desc?: string[]
+  category_range?: string;
+  range?: any;
+  damage?: any;
 }
 
 const getTrait = async (dispatch: (arg0: ThunkAction<QueryActionCreatorResult<QueryDefinition<string, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, any, "dndApi">>, any, any, UnknownAction>) => { data: any; } | PromiseLike<{ data: any; }>, index: string) => {
@@ -73,10 +89,9 @@ const getSubTrait = async (dispatch: (arg0: ThunkAction<QueryActionCreatorResult
   const result = await dispatch(
       dndApi.endpoints.getTrait.initiate(index)
   ) as {data:traitConfig} 
-
+  
   return result;
 }
-
 
 export const getCharacterTraits = createAsyncThunk(
   'config/characterTraits',
@@ -113,6 +128,59 @@ export const getCharacterSubTraits = createAsyncThunk(
 )
 
 
+const getEquipmentInfo = async (dispatch: (arg0: ThunkAction<QueryActionCreatorResult<QueryDefinition<string, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, any, "dndApi">>, any, any, UnknownAction>) => { data: any; } | PromiseLike<{ data: any; }>, index: string) => {
+  const result = await dispatch(
+      dndApi.endpoints.getEquipment.initiate(index)
+  ) as {data:equipmentConfig} 
+  let equipmentInfo:any = {};
+  equipmentInfo.name= result.data.name;
+  equipmentInfo.index = result.data.index;
+
+  if(result.data.equipment_category.index === 'armor'){
+    equipmentInfo.type = 'armor';
+    equipmentInfo.armor_category = result.data.armor_category;
+    equipmentInfo.armor_class = result.data.armor_class;
+    equipmentInfo.stealth_disadvantage = result.data.stealth_disadvantage;
+  }
+  if(result.data.equipment_category.index === 'adventuring-gear'){
+    equipmentInfo.type = 'adventuring-gear';
+    equipmentInfo.desc = result.data.desc;
+    equipmentInfo.contents = result.data.contents;
+  }
+  if(result.data.equipment_category.index === 'weapon'){
+    equipmentInfo.type = 'weapon';
+    equipmentInfo.contents = result.data.contents;
+    equipmentInfo.category_range = result.data.category_range
+    equipmentInfo.range = result.data.range
+    equipmentInfo.damage = result.data.damage
+  }
+
+  return equipmentInfo;
+}
+
+export const getEquipment= createAsyncThunk(
+  'config/equipment',
+  async (payload:any, thunkAPI) => {
+    const { id, equipment} = payload;
+    const { dispatch } = thunkAPI;
+    try{
+      const filteredEquipment = Object.keys(equipment).filter((i:string) => {
+        if(i !== 'simple-weapons' && i !== 'simple-melee-weapons' && i !== 'martial-weapons'){
+          return i;
+        }
+      })
+      const mapResult = await Promise.all(filteredEquipment.map( async(index: string) => {
+        return await getEquipmentInfo(dispatch, index.split('_')[0])
+      }))
+      return  {key: id, equipment: mapResult};
+    } catch(e){
+      console.log({e})
+    }
+  }
+)
+
+
+
 
 export const configSlice = createSlice({
     reducers: {
@@ -126,7 +194,7 @@ export const configSlice = createSlice({
             }
             state.sessions = sessions;
         },
-        updateCharacterParam: (state, action: PayloadAction<{id:string, type: string, value:string | string[] | number | undefined }>) => {
+        updateCharacterParam: (state, action: PayloadAction<{id:string, type: string, value:string | string[] | number | undefined | {[key:string]: {value:string, selectId:string}}}>) => {
             const { id, type, value} = action.payload;
             const characters = {...state.characters};
             if (characters.hasOwnProperty(id)){
@@ -189,6 +257,18 @@ export const configSlice = createSlice({
             return trait;
           })
           state.characters[key].traits = updatedTraits;
+        }
+      }),
+      builder.addCase(getEquipment.pending , (state) => {
+        console.log('pending equipment')
+      }),
+      builder.addCase(getEquipment.fulfilled, (state, action) => {
+        if(action.payload){
+          const { key , equipment } = action.payload;
+          const equipmentArray = [...equipment]
+          const character = {...state.characters[key]};
+          character.actions = equipmentArray;
+          state.characters[key] = character;
         }
       })
     },

@@ -4,7 +4,6 @@ import debounce  from "lodash/debounce"
 import { ColorResult, SketchPicker } from 'react-color';
 import { Accordion, Dropdown } from 'flowbite-react';
 
-import {  selectCharacters} from '@/state/config.slice';
 import { selectSelected } from "@/state/canvas.slice";
 import diagramInstance from "../../canvas/CanvasDiagram";
 import { isEqual } from "lodash";
@@ -13,22 +12,19 @@ import Classes from "./Class";
 import Ability from "./Ability";
 import Spells from "./Spells";
 import Background from "./Background";
-import Character from "../../common/Character";
+import CharacterButton from "../../common/CharacterButton";
 
 
 
 
 export default function CharacterPanel() {
     const selectedData = useAppSelector(selectSelected);
-    const characterData= useAppSelector(selectCharacters);
 
     if(selectedData === null){
       return null;
     } else {
       // selected data
       const {key, text, color } = selectedData;
-      // character data
-      const character = characterData[key] ? characterData[key] : {};
 
       const diagram = diagramInstance.getDiagramRef();
 
@@ -53,9 +49,16 @@ export default function CharacterPanel() {
       useEffect(() => {
         const node = diagram?.findNodeForKey(key);
         if(node){
-          diagram?.model.commit(m => {  // m == the Model
-            m.set(node?.data, "text", name);
-          }, "change node name");
+          if(name.length){
+            diagram?.model.commit(m => {  // m == the Model
+              m.set(node?.data, "text", name);
+            }, "change node name");
+          } else {
+            diagram?.model.commit(m => {  // m == the Model
+              m.set(node?.data, "text", ' ');
+            }, "change node name");
+          }
+
         }
       }, [name])
 
@@ -72,10 +75,10 @@ export default function CharacterPanel() {
       }
 
       return (
-        <div className="w-full h-full dark:bg-slate-700 overflow-scroll min-w-['270px']">
+        <div className="w-full h-full dark:bg-slate-600 overflow-scroll min-w-['270px']">
           <div className="p-2 w-full flex flex-row justify-between">
             <p className="w-full text-lg dark:text-white text-center">Character Editor</p>
-            <Character key={key} />
+            <CharacterButton characterKey={key} name={text} />
           </div>
           <div className="w-full p-2 flex flex-row content-between">
             <div className="w-[80%]">
